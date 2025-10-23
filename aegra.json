@@ -1,0 +1,8 @@
+{
+  "graphs": {
+    "legal_agent": "./graphs/legal_agent/graph.py:graph",
+    "agent": "./graphs/react_agent/graph.py:graph",
+    "agent_hitl": "./graphs/react_agent_hitl/graph.py:graph",
+    "subgraph_agent": "./graphs/subgraph_agent/graph.py:graph"
+  }
+}
