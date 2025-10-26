@@ -37,6 +37,52 @@ spec:
             secretKeyRef:
               name: aegra-secrets
               key: POSTGRES_PASSWORD
+      - name: init-graphs
+        image: us-chicago-1.ocir.io/idxzjcdglx2s/aegra:latest
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+        command:
+        - sh
+        - -c
+        - |
+          echo "Initializing graphs directory in PVC..."
+          echo "Checking if source graphs directory exists..."
+          ls -la /app/graphs/ || echo "No /app/graphs directory"
+          if [ ! -f /app/graphs-pvc/legal_agent/graph.py ]; then
+            echo "Copying graphs directory from image to PVC..."
+            if [ -d /app/graphs ]; then
+              cp -r /app/graphs/* /app/graphs-pvc/
+              echo "Graphs directory copied successfully"
+            else
+              echo "Source graphs directory not found, creating empty structure"
+              mkdir -p /app/graphs-pvc/legal_agent/data
+              echo "Empty structure created"
+            fi
+          else
+            echo "Graphs directory already exists in PVC"
+            # Check if legal.db is missing and copy it
+            if [ ! -f /app/graphs-pvc/legal_agent/data/legal.db ]; then
+              echo "legal.db missing, copying from image..."
+              if [ -f /app/graphs/legal_agent/data/legal.db ]; then
+                cp /app/graphs/legal_agent/data/legal.db /app/graphs-pvc/legal_agent/data/legal.db
+                echo "legal.db copied successfully"
+              else
+                echo "legal.db not found in image"
+              fi
+            else
+              echo "legal.db already exists in PVC"
+            fi
+          fi
+          echo "Final PVC contents:"
+          ls -la /app/graphs-pvc/
+          echo "Legal agent contents:"
+          ls -la /app/graphs-pvc/legal_agent/
+          echo "Legal agent data contents:"
+          ls -la /app/graphs-pvc/legal_agent/data/ || echo "No data directory"
+        volumeMounts:
+        - name: aegra-data
+          mountPath: /app/graphs-pvc
       containers:
       - name: aegra
         image: us-chicago-1.ocir.io/idxzjcdglx2s/aegra:latest
@@ -95,7 +141,7 @@ spec:
           echo "Starting Aegra server..."
           uvicorn src.agent_server.main:app --host 0.0.0.0 --port 8000
         volumeMounts:
-        - name: aegra-graphs
+        - name: aegra-data
           mountPath: /app/graphs
         - name: aegra-config-file
           mountPath: /app/aegra.json
@@ -138,14 +184,6 @@ spec:
             memory: "256Mi"
             cpu: "100m"
       volumes:
-      - name: aegra-graphs
-        configMap:
-          name: aegra-config-files
-          items:
-          - key: graphs_legal_agent___init___py
-            path: legal_agent/__init__.py
-          - key: graphs_legal_agent_graph_py
-            path: legal_agent/graph.py
       - name: aegra-data
         persistentVolumeClaim:
           claimName: aegra-data-pvc
