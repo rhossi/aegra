@@ -25,7 +25,7 @@ COPY pyproject.toml ./
 COPY README.md ./
 COPY src/ ./src/
 
-# Install project (builds wheel and installs dependencies specified in pyproject)
+# Install project using pip (more stable for cross-platform builds)
 RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir .
 

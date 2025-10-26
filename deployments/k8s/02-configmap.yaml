@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegra-config
+  namespace: aegra
+  labels:
+    app.kubernetes.io/name: aegra
+    app.kubernetes.io/part-of: aegra
+data:
+  # Database configuration
+  DATABASE_URL: "postgresql+asyncpg://user:password@postgres-service:5432/aegra"
+  
+  # Application configuration
+  AUTH_TYPE: "noop"
+  DEBUG: "true"
+  PORT: "8000"
+  
+  # PostgreSQL configuration
+  POSTGRES_DB: "aegra"
+  POSTGRES_USER: "user"
+  
+  # Health check configuration
+  HEALTH_CHECK_INTERVAL: "30"
+  HEALTH_CHECK_TIMEOUT: "10"
+

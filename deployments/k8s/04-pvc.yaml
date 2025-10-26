@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: aegra
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: aegra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: "oci-bv"  # Use OCI Block Volume storage class
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: aegra-data-pvc
+  namespace: aegra
+  labels:
+    app.kubernetes.io/name: aegra
+    app.kubernetes.io/part-of: aegra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: "oci-bv"  # Use OCI Block Volume storage class
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: aegra
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/part-of: aegra
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: "oci-bv"  # Use OCI Block Volume storage class

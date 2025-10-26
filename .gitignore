@@ -27,3 +27,6 @@ htmlcov/
 
 # Pre-commit
 .pre-commit-cache/
+
+# Kubernetes secrets (contains sensitive data)
+deployments/k8s/03-secrets.yaml
