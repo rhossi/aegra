@@ -1,10 +1,7 @@
 FROM python:3.11-slim-bookworm AS base
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100
+    PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
@@ -20,14 +17,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 # Copy project metadata and source
 COPY pyproject.toml ./
+COPY uv.lock ./
 COPY README.md ./
 COPY src/ ./src/
 
-# Install project using pip (more stable for cross-platform builds)
-RUN python -m pip install --upgrade pip && \
-    pip install --no-cache-dir .
+# Install project using uv
+RUN uv pip install --system --no-cache .
 
 # -----------------------------
 # Final, minimal runtime image
